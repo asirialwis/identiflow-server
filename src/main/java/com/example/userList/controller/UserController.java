@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -41,6 +42,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
+
+    @GetMapping
+    public ResponseEntity<?> getAllUsersExceptMe(@RequestHeader("Authorization") String authHeader) {
+        try {
+            String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+            List<User> users = userService.getAllUsersExceptLoggedIn(token);
+            return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
 
 
 }

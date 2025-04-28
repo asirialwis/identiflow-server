@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -68,5 +69,12 @@ public class UserService {
         return userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found"));
     }
+
+    //get user list without log in user
+    public List<User> getAllUsersExceptLoggedIn(String token) {
+        long loggedInUserId = Long.parseLong(JwtUtil.extractUserId(token));
+        return userRepository.findAllByIdNot(loggedInUserId);
+    }
+
 
 }
