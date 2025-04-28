@@ -1,6 +1,7 @@
 package com.example.userList.service;
 
 import com.example.userList.dto.LoginRequest;
+import com.example.userList.dto.UpdateUserRequest;
 import com.example.userList.dto.UserRequest;
 import com.example.userList.model.User;
 import com.example.userList.repository.UserRepository;
@@ -74,6 +75,34 @@ public class UserService {
     public List<User> getAllUsersExceptLoggedIn(String token) {
         long loggedInUserId = Long.parseLong(JwtUtil.extractUserId(token));
         return userRepository.findAllByIdNot(loggedInUserId);
+    }
+
+
+    public User updateUser(Long userId, UpdateUserRequest updateRequest) throws IOException {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        if (updateRequest.getUsername() != null) {
+            user.setUsername(updateRequest.getUsername());
+        }
+        if (updateRequest.getEmail() != null) {
+            user.setEmail(updateRequest.getEmail());
+        }
+        if (updateRequest.getMobile() != null) {
+            user.setMobile(updateRequest.getMobile());
+        }
+        if (updateRequest.getPassword() != null) {
+            user.setPassword(updateRequest.getPassword());
+        }
+        if(updateRequest.getStatus() != null){
+            user.setStatus(updateRequest.getStatus());
+        }
+
+        if(updateRequest.getProfileImage() != null){
+            user.setProfileImage(updateRequest.getProfileImage().getBytes());
+        }
+
+        return userRepository.save(user);
     }
 
 

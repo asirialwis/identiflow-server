@@ -1,6 +1,7 @@
 package com.example.userList.controller;
 
 import com.example.userList.dto.LoginRequest;
+import com.example.userList.dto.UpdateUserRequest;
 import com.example.userList.dto.UserRequest;
 import com.example.userList.model.User;
 import com.example.userList.service.UserService;
@@ -49,6 +50,21 @@ public class UserController {
             String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
             List<User> users = userService.getAllUsersExceptLoggedIn(token);
             return ResponseEntity.ok(users);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+
+    @PutMapping("/{id}")
+    public ResponseEntity<?> updateUser(
+            @PathVariable Long id,
+            @RequestBody UpdateUserRequest updateRequest
+    ) {
+        try {
+            User updatedUser = userService.updateUser(id, updateRequest);
+            return ResponseEntity.ok(updatedUser);
         } catch (Exception e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
