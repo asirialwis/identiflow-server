@@ -1,14 +1,13 @@
 package com.example.userList.controller;
 
+import com.example.userList.dto.LoginRequest;
 import com.example.userList.dto.UserRequest;
+import com.example.userList.model.User;
 import com.example.userList.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
@@ -23,4 +22,25 @@ public class UserController {
     public ResponseEntity<?> createUser(@RequestBody @Valid UserRequest userRequest) throws IOException {
         return ResponseEntity.ok(userService.createUser(userRequest));
     }
+
+    @PostMapping("/login")
+    public ResponseEntity<?>loginUser(@RequestBody @Valid LoginRequest loginRequest){
+        return ResponseEntity.ok(userService.login(loginRequest));
+    }
+
+    @GetMapping("/profile")
+    public ResponseEntity<?> getMyProfile(@RequestHeader("Authorization") String authHeader) {
+        try {
+            // Remove "Bearer " prefix if it exists
+            String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+
+            User user = userService.getUserProfile(token);
+
+            return ResponseEntity.ok(user);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
 }
