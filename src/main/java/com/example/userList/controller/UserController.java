@@ -7,12 +7,14 @@ import com.example.userList.model.User;
 import com.example.userList.service.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 import java.util.List;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
@@ -26,9 +28,10 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<?>loginUser(@RequestBody @Valid LoginRequest loginRequest){
+    public ResponseEntity<?> loginUser(@RequestBody @Valid LoginRequest loginRequest) {
         return ResponseEntity.ok(userService.login(loginRequest));
     }
+
 
     @GetMapping("/profile")
     public ResponseEntity<?> getMyProfile(@RequestHeader("Authorization") String authHeader) {

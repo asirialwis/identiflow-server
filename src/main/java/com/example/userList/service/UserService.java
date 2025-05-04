@@ -7,10 +7,13 @@ import com.example.userList.model.User;
 import com.example.userList.repository.UserRepository;
 import com.example.userList.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -43,22 +46,22 @@ public class UserService {
 
     }
 
-    public String login(LoginRequest loginRequest)  {
+    public  Map<String, String> login(LoginRequest loginRequest)  {
         Optional<User> optionalUser =  userRepository.findByEmail(loginRequest.getEmail());
 
         if(optionalUser.isEmpty()){
-            throw new RuntimeException("user not found");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "User not found");
         }
         User user = optionalUser.get();
 
         if(!user.getPassword().equals(loginRequest.getPassword())){
-            throw new RuntimeException("wrong password");
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
         }
         if(!user.isStatus()){
-            throw new RuntimeException("User is deactivated");
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is deactivated");
         }
-
-        return JwtUtil.generateToken(user.getId());
+        String token = JwtUtil.generateToken(user.getId());
+        return Map.of("token", token);
     }
 
 
