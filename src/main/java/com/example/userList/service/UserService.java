@@ -39,7 +39,7 @@ public class UserService {
 
 
         if (userRequest.getProfileImage() != null && !userRequest.getProfileImage().isEmpty()) {
-            user.setProfileImage(userRequest.getProfileImage().getBytes());
+            user.setProfileImage(userRequest.getProfileImage());
         }
 
         return userRepository.save(user);
@@ -102,7 +102,7 @@ public class UserService {
         }
 
         if(updateRequest.getProfileImage() != null){
-            user.setProfileImage(updateRequest.getProfileImage().getBytes());
+            user.setProfileImage(updateRequest.getProfileImage());
         }
 
         return userRepository.save(user);

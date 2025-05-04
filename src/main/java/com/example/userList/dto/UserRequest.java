@@ -27,7 +27,7 @@ public class UserRequest {
     @Size(min=6)
     private String password;
 
-    private MultipartFile profileImage;
+    private String profileImage;
     private boolean status = true;
 
 

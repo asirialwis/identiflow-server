@@ -42,9 +42,9 @@ public class User {
     @Size(min=6,message="password must be at least 6 characters")
     private String password;
 
-    @Lob
+
     @Column(name = "profile_image",nullable = true)
-    private byte[] profileImage;
+    private String profileImage;
 
     @Column(nullable=false)
     private boolean status = true;

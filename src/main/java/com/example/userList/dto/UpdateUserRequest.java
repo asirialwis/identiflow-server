@@ -11,6 +11,6 @@ public class UpdateUserRequest {
     private String mobile;
     private String password;
     private Boolean status;
-    private MultipartFile profileImage;
+    private String profileImage;
 
 }
