@@ -8,6 +8,7 @@ import com.example.userList.repository.UserRepository;
 import com.example.userList.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -21,6 +22,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public User createUser(UserRequest userRequest) throws IOException {
 
@@ -35,7 +37,10 @@ public class UserService {
         user.setUsername(userRequest.getUsername());
         user.setEmail(userRequest.getEmail());
         user.setMobile(userRequest.getMobile());
-        user.setPassword(userRequest.getPassword());
+
+
+        String hashedPassword = passwordEncoder.encode(userRequest.getPassword());
+        user.setPassword(hashedPassword);
 
 
         if (userRequest.getProfileImage() != null && !userRequest.getProfileImage().isEmpty()) {
@@ -54,12 +59,14 @@ public class UserService {
         }
         User user = optionalUser.get();
 
-        if(!user.getPassword().equals(loginRequest.getPassword())){
-            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
-        }
         if(!user.isStatus()){
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is deactivated");
         }
+
+        if(!passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())){
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
+        }
+
         String token = JwtUtil.generateToken(user.getId());
         return Map.of("token", token);
     }
@@ -95,7 +102,8 @@ public class UserService {
             user.setMobile(updateRequest.getMobile());
         }
         if (updateRequest.getPassword() != null) {
-            user.setPassword(updateRequest.getPassword());
+            String hashedPassword = passwordEncoder.encode(updateRequest.getPassword());
+            user.setPassword(hashedPassword);
         }
         if(updateRequest.getStatus() != null){
             user.setStatus(updateRequest.getStatus());
