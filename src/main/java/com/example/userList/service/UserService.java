@@ -1,5 +1,6 @@
 package com.example.userList.service;
 
+import at.favre.lib.crypto.bcrypt.BCrypt;
 import com.example.userList.dto.LoginRequest;
 import com.example.userList.dto.UpdateUserRequest;
 import com.example.userList.dto.UserRequest;
@@ -8,7 +9,6 @@ import com.example.userList.repository.UserRepository;
 import com.example.userList.util.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
@@ -22,7 +22,7 @@ import java.util.Optional;
 public class UserService {
 
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+
 
     public User createUser(UserRequest userRequest) throws IOException {
 
@@ -39,7 +39,8 @@ public class UserService {
         user.setMobile(userRequest.getMobile());
 
 
-        String hashedPassword = passwordEncoder.encode(userRequest.getPassword());
+        // Hash the password using favre bcrypt
+        String hashedPassword = BCrypt.withDefaults().hashToString(12, userRequest.getPassword().toCharArray());
         user.setPassword(hashedPassword);
 
 
@@ -63,7 +64,13 @@ public class UserService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User is deactivated");
         }
 
-        if(!passwordEncoder.matches(loginRequest.getPassword(),user.getPassword())){
+        // Verify the password using favre bcrypt
+        BCrypt.Result result = BCrypt.verifyer().verify(
+                loginRequest.getPassword().toCharArray(),
+                user.getPassword()
+        );
+
+        if (!result.verified) {
             throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Wrong password");
         }
 
@@ -102,7 +109,7 @@ public class UserService {
             user.setMobile(updateRequest.getMobile());
         }
         if (updateRequest.getPassword() != null) {
-            String hashedPassword = passwordEncoder.encode(updateRequest.getPassword());
+            String hashedPassword = BCrypt.withDefaults().hashToString(12, updateRequest.getPassword().toCharArray());
             user.setPassword(hashedPassword);
         }
         if(updateRequest.getStatus() != null){
