@@ -5,9 +5,10 @@ import com.example.userList.dto.UpdateUserRequest;
 import com.example.userList.dto.UserRequest;
 import com.example.userList.model.User;
 import com.example.userList.service.UserService;
+import com.example.userList.util.JwtUtil;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.MediaType;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,6 +23,7 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final JwtUtil jwtUtil;
 
     @PostMapping
     public ResponseEntity<?> createUser(@RequestBody @Valid UserRequest userRequest) throws IOException {
@@ -48,6 +50,7 @@ public class UserController {
         }
     }
 
+    //Get All users for the List
     @GetMapping
     public ResponseEntity<?> getAllUsersExceptMe(@RequestHeader("Authorization") String authHeader) {
         try {
@@ -62,10 +65,12 @@ public class UserController {
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateUser(
-            @PathVariable Long id,
-            @RequestBody @Valid UpdateUserRequest updateRequest
-    ) {
+    public ResponseEntity<?> updateUser(@RequestHeader("Authorization")String authHeader, @PathVariable Long id, @RequestBody @Valid UpdateUserRequest updateRequest) {
+
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        if(!JwtUtil.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Invalid token");
+        }
         try {
             User updatedUser = userService.updateUser(id, updateRequest);
             return ResponseEntity.ok(updatedUser);
@@ -75,7 +80,13 @@ public class UserController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Map<String, String>> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<Map<String, String>> deleteUser(@RequestHeader("Authorization")String authHeader ,@PathVariable Long id) {
+
+        String token = authHeader.startsWith("Bearer ") ? authHeader.substring(7) : authHeader;
+        if (!JwtUtil.validateToken(token)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or tampered token"));
+        }
         userService.deleteUser(id);
         return ResponseEntity.ok(Map.of("message", "User deleted successfully"));
     }

@@ -2,12 +2,13 @@ package com.example.userList.util;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
+import org.springframework.stereotype.Service;
 
 import javax.crypto.SecretKey;
 import java.time.Instant;
 import java.util.Date;
 
-
+@Service
 public class JwtUtil {
 
     private static final String SECRET_KEY = "my-super-strong-secret-key-must-be-32-bytes!";
@@ -31,6 +32,19 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload()
                 .getSubject();
+    }
+
+    public static boolean validateToken(String token){
+        try{
+            Jwts.parser()
+                    .setSigningKey(KEY)
+                    .build()
+                    .parseSignedClaims(token);
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
 
