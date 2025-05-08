@@ -36,7 +36,9 @@ public class UserService {
 
         user.setUsername(userRequest.getUsername());
         user.setEmail(userRequest.getEmail());
+        user.setNic(userRequest.getNic());
         user.setMobile(userRequest.getMobile());
+
 
 
         // Hash the password using favre bcrypt

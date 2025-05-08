@@ -19,6 +19,10 @@ public class UserRequest {
     @Email
     private String email;
 
+    @NotBlank(message = "NIC is required")
+    @Pattern(regexp = "^[0-9]{12}$",message = "NIC must be exactly 12 digits")
+    private String nic;
+
     @NotBlank
     @Pattern(regexp = "^[0-9]{10}$")
     private String mobile;
